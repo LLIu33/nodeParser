@@ -76,7 +76,7 @@ request.on('response', function(response) {
             }
           });
         });
-        return {
+        res.json {
           taverns: taverns,
           host: host,
         };
