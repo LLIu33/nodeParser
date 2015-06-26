@@ -7,10 +7,10 @@ var sys = require('sys');
 
 // Fetch some HTML...
 var http = require('http');
-
+var host = 'www.mytogo.ru';
 var request = http.request({
   port: 80,
-  host: 'www.mytogo.ru',
+  host: host,
   method: 'GET',
 });
 
@@ -76,10 +76,10 @@ request.on('response', function(response) {
             }
           });
         });
-        res.json {
+        console.log({
           taverns: taverns,
           host: host,
-        };
+        });
       }
     });
 
