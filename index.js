@@ -66,7 +66,6 @@ request.on('response', function(response) {
 
           _.each(usersToPlay.children, function(item, i) {
             if (item.attribs && item.attribs.class == 'bold') {
-              console.log(item);
               var userToPlay = new User;
               var imgIndex = i + 2;
               var nameIndex = i + 3;
@@ -77,7 +76,10 @@ request.on('response', function(response) {
             }
           });
         });
-        // console.log(taverns[1]);
+        return {
+          taverns: taverns,
+          host: host,
+        };
       }
     });
 
