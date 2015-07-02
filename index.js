@@ -96,7 +96,7 @@ app.get('/', function(req, res, next) {
                 var userToPlay = new User();
                 var imgIndex = i + 2;
                 var nameIndex = i + 3;
-                userToPlay.dateOfPlan = item.raw;
+                userToPlay.dateOfPlan = item.children[0].raw;
                 userToPlay.avatar = usersToPlay.children[imgIndex].attribs.src;
                 userToPlay.name = usersToPlay.children[nameIndex].raw;
                 taverns[tavernKey].usersPlanToPlay.push(userToPlay);
