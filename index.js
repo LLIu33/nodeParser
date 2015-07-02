@@ -7,6 +7,7 @@ var sys = require('sys');
 var express = require('express');
 
 var app = express();
+app.set('port', (process.env.PORT || 5000));
 
 function Tavern() {
   this.name = '';
@@ -114,7 +115,7 @@ app.get('/', function(req, res, next) {
   request.end();
 });
 
-var server = app.listen(80, function() {
+var server = app.listen(app.get('port'), function() {
 
   var host = server.address().address;
   var port = server.address().port;
