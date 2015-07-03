@@ -20,6 +20,7 @@ function User() {
   this.name = '';
   this.avatar = '';
   this.dateOfPlan = '';
+  this.time = '';
 }
 
 app.use('/', function(req, res, next) {
@@ -96,9 +97,14 @@ app.get('/', function(req, res, next) {
                 var userToPlay = new User();
                 var imgIndex = i + 2;
                 var nameIndex = i + 3;
-                userToPlay.dateOfPlan = item.children[0].raw;
+                var dateOfPlan = item.children[0].raw.split('-');
+                userToPlay.dateOfPlan = new Date(
+                    dateOfPlan[2], dateOfPlan[1] - 1, dateOfPlan[0]
+                );
                 userToPlay.avatar = usersToPlay.children[imgIndex].attribs.src;
-                userToPlay.name = usersToPlay.children[nameIndex].raw;
+                var nameArr = usersToPlay.children[nameIndex].raw.explode(' ');
+                userToPlay.name = nameArr[0];
+                userToPlay.time = nameArr[2];
                 taverns[tavernKey].usersPlanToPlay.push(userToPlay);
               }
             });
