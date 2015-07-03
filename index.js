@@ -102,7 +102,7 @@ app.get('/', function(req, res, next) {
                     dateOfPlan[2], dateOfPlan[1] - 1, dateOfPlan[0]
                 );
                 userToPlay.avatar = usersToPlay.children[imgIndex].attribs.src;
-                var nameArr = usersToPlay.children[nameIndex].raw.explode(' ');
+                var nameArr = usersToPlay.children[nameIndex].raw.split(' ');
                 userToPlay.name = nameArr[0];
                 userToPlay.time = nameArr[2];
                 taverns[tavernKey].usersPlanToPlay.push(userToPlay);
