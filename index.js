@@ -103,8 +103,8 @@ app.get('/', function(req, res, next) {
                 );
                 userToPlay.avatar = usersToPlay.children[imgIndex].attribs.src;
                 var nameArr = usersToPlay.children[nameIndex].raw.split(' ');
-                userToPlay.name = nameArr[0];
-                userToPlay.time = nameArr[2];
+                userToPlay.name = nameArr[1];
+                userToPlay.time = nameArr[3];
                 taverns[tavernKey].usersPlanToPlay.push(userToPlay);
               }
             });
