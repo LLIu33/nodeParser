@@ -92,24 +92,40 @@ app.get('/', function(req, res, next) {
               }
             });
 
+            var dateBlocks = [];
+            var j = 0;
             _.each(usersToPlay.children, function(item, i) {
               if (item.attribs && item.attribs.class === 'bold') {
-                var userToPlay = new User();
-                var imgIndex = i + 2;
-                var nameIndex = i + 3;
-                var dateOfPlan = item.children[0].raw.split('-');
-                userToPlay.dateOfPlan = new Date(
-                    dateOfPlan[2], dateOfPlan[1] - 1, dateOfPlan[0]
-                );
-                userToPlay.avatar = usersToPlay.children[imgIndex].attribs.src;
-                var nameArr = usersToPlay.children[nameIndex].raw.split(' в ');
-                userToPlay.name = nameArr[0];
-                userToPlay.time = nameArr[2];
-                taverns[tavernKey].usersPlanToPlay.push(userToPlay);
+                ++j;
               }
+              dateBlocks[j] = (dateBlocks[j]) ? dateBlocks[j] : [];
+              dateBlocks[j].push(item);
             });
+            dateBlocks.shift();
+            if (dateBlocks.length > 0) {
+              _.each(dateBlocks, function(block) {
+                var dateToPlay = '';
+                _.each(block, function(item, i) {
+                  if (item.attribs && item.attribs.class === 'bold') {
+                    var dateTmp = item.children[0].raw.split('-');
+                    dateToPlay = new Date(dateTmp[2], dateTmp[1] - 1, dateTmp[0]);
+                  }
+                  if (item.attribs && item.attribs.src) {
+                    var userToPlay = new User();
+                    userToPlay.avatar = item.attribs.src;
+                    var nameArr = block[i+1].raw.split(' в ');
+                    userToPlay.name = nameArr[0];
+                    userToPlay.time = nameArr[1];
+                    userToPlay.dateOfPlan = dateToPlay;
+                    console.log(userToPlay);
+                    taverns[tavernKey].usersPlanToPlay.push(userToPlay);
+                  }
+                });
+              });
+            }
           });
-          console.log({taverns: taverns, host: host});
+
+          // console.log({taverns: taverns, host: host});
           res.json({taverns: taverns, host: host});
         }
       });
