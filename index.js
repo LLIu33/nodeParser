@@ -7,6 +7,12 @@ var sys = require('sys');
 var express = require('express');
 
 var app = express();
+var bodyParser = require('body-parser');
+var multer = require('multer'); 
+
+app.use(bodyParser.json()); // for parsing application/json
+app.use(bodyParser.urlencoded({ extended: true })); // for parsing application/x-www-form-urlencoded
+app.use(multer()); // for parsing multipart/form-data
 app.set('port', (process.env.PORT || 5000));
 
 function Tavern() {
@@ -30,15 +36,18 @@ app.use('/', function(req, res, next) {
   next();
 });
 
-app.get('/', function(req, res, next) {
+app.all('/', function(req, res, next) {
+  var city = (typeof req.body.city !== 'undefined') ? req.body.city : '';
   // Handle the get for this route
   var taverns = [];
   // Fetch some HTML...
-  var http = require('http');
-  var host = (req.query.city === 'tagan') ? 'www.mytogo.ru/?tmpl=kikertagan' : 'www.mytogo.ru';
+  var host = 'www.mytogo.ru';
+  var path = (city === 'tagan') ? '/?tmpl=kikertagan' : '/';
+  console.log(path);
   var request = http.request({
     port: 80,
     host: host,
+    path: path,
     method: 'GET',
   });
 
@@ -69,13 +78,17 @@ app.get('/', function(req, res, next) {
           tavernRows.shift();
 
           _.each(tavernRows, function(tavernRow, tavernKey) {
+
             // Create item for every tavern
             taverns.push(new Tavern());
+            var tavernNode = select(tavernRow, 'img')[0];
+
+            // ugly hack
+            if (typeof tavernNode === 'undefined') { return; }
 
             // Get name and logo
-            var tavernNode = select(tavernRow, 'img')[0];
             taverns[tavernKey].name = tavernNode.attribs.alt;
-            taverns[tavernKey].logo = 'http://mytogo.ru' + tavernNode.attribs.src;
+            taverns[tavernKey].logo = host + tavernNode.attribs.src;
 
             // Get people activity
             var usersNode = select(tavernRow, '.col-lg-6.col-md-6.col-sm-6');
@@ -86,7 +99,7 @@ app.get('/', function(req, res, next) {
               if (item.name === 'img') {
                 var userInside = new User();
                 var nameIndex = i + 1;
-                userInside.avatar = 'http://mytogo.ru' + usersInside.children[i].attribs.src;
+                userInside.avatar = host + usersInside.children[i].attribs.src;
                 userInside.name = usersInside.children[nameIndex].raw;
                 userInside.date = 'NOW';
                 taverns[tavernKey].usersInside.push(userInside);
@@ -113,7 +126,7 @@ app.get('/', function(req, res, next) {
                   }
                   if (item.attribs && item.attribs.src) {
                     var userToPlay = new User();
-                    userToPlay.avatar = 'http://mytogo.ru' + item.attribs.src;
+                    userToPlay.avatar = host + item.attribs.src;
                     var nameArr = block[i+1].raw.split(' в ');
                     userToPlay.name = nameArr[0];
                     userToPlay.time = nameArr[1];

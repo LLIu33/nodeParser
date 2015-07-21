@@ -7,8 +7,10 @@
     "start": "node index.js"
   },
   "dependencies": {
+    "body-parser": "^1.13.2",
     "express": "~4.9.x",
     "htmlparser": "^1.7.7",
+    "multer": "^0.1.8",
     "soupselect": "^0.2.0",
     "underscore": "^1.8.3"
   },
