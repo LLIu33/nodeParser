@@ -25,7 +25,7 @@ function Tavern() {
 function User() {
   this.name = '';
   this.avatar = '';
-  this.dateOfPlan = '';
+  this.date = '';
   this.time = '';
 }
 
@@ -41,9 +41,9 @@ app.all('/', function(req, res, next) {
   // Handle the get for this route
   var taverns = [];
   // Fetch some HTML...
-  var host = 'www.mytogo.ru';
+  var host = 'mytogo.ru';
   var path = (city === 'tagan') ? '/?tmpl=kikertagan' : '/';
-  console.log(path);
+  console.log(host + path);
   var request = http.request({
     port: 80,
     host: host,
@@ -88,7 +88,7 @@ app.all('/', function(req, res, next) {
 
             // Get name and logo
             taverns[tavernKey].name = tavernNode.attribs.alt;
-            taverns[tavernKey].logo = host + tavernNode.attribs.src;
+            taverns[tavernKey].logo = 'http://' + host + tavernNode.attribs.src;
 
             // Get people activity
             var usersNode = select(tavernRow, '.col-lg-6.col-md-6.col-sm-6');
@@ -99,9 +99,9 @@ app.all('/', function(req, res, next) {
               if (item.name === 'img') {
                 var userInside = new User();
                 var nameIndex = i + 1;
-                userInside.avatar = host + usersInside.children[i].attribs.src;
+                userInside.avatar = 'http://' + host + usersInside.children[i].attribs.src;
                 userInside.name = usersInside.children[nameIndex].raw;
-                userInside.date = 'NOW';
+                userInside.date = '<b>NOW</b>';
                 taverns[tavernKey].usersInside.push(userInside);
               }
             });
@@ -122,11 +122,11 @@ app.all('/', function(req, res, next) {
                 _.each(block, function(item, i) {
                   if (item.attribs && item.attribs.class === 'bold') {
                     var dateTmp = item.children[0].raw.split('-');
-                    dateToPlay = dateTmp[2] + '-' + (dateTmp[1] - 1) + '-' +  dateTmp[0];
+                    dateToPlay = dateTmp[0] + '-' + dateTmp[1] + '-' +  dateTmp[2];
                   }
                   if (item.attribs && item.attribs.src) {
                     var userToPlay = new User();
-                    userToPlay.avatar = host + item.attribs.src;
+                    userToPlay.avatar = 'http://' + host + item.attribs.src;
                     var nameArr = block[i+1].raw.split(' в ');
                     userToPlay.name = nameArr[0];
                     userToPlay.time = nameArr[1];
@@ -137,7 +137,11 @@ app.all('/', function(req, res, next) {
               });
             }
           });
-          res.json({taverns: taverns, host: host});
+          res.json({
+            taverns: taverns, 
+            host: host + path,
+            time: new Date().toLocaleString()
+          });
         }
       });
 
