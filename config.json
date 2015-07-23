@@ -1,0 +1,17 @@
+{
+  "server": {
+    "host":"localhost",
+    "port": 5000
+  },
+  "target": {
+    "url": "mytogo.ru",
+    "port": "80",
+    "method": "GET"
+  },
+  "tagan": {
+    "path": "/?tmpl=kikertagan"
+  },
+  "rostov": {
+    "path": "/"
+  }
+}

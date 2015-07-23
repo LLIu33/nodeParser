@@ -11,6 +11,7 @@
     "express": "~4.9.x",
     "htmlparser": "^1.7.7",
     "multer": "^0.1.8",
+    "nconf": "^0.7.1",
     "soupselect": "^0.2.0",
     "underscore": "^1.8.3"
   },
