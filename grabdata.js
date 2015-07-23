@@ -31,25 +31,16 @@ function parseHTML(dom) {
   var taverns = [];
   var tavernSelector = '.container .col-lg-9.col-md-9.col-sm-8';
   var tavernRows = select(dom, tavernSelector)[0].children;
-  tavernRows = _.filter(tavernRows, function(item) {
-    if (item.type === 'tag')
-          return item;
-  });
-  // Remove trash node from collection
-  tavernRows.shift();
 
-  _.each(tavernRows, function(tavernRow, tavernKey) {
-
-    // Create item for every tavern
-    taverns.push(new Tavern());
+  tavernRows = _.each(tavernRows, function(tavernRow) {
     var tavernNode = select(tavernRow, 'img')[0];
-
-    // ugly hack
-    if (typeof tavernNode === 'undefined') { return; }
-
+    // check empty and trash elements
+    if ((tavernRow.type !== 'tag') || (typeof tavernNode === 'undefined')) { return; }
+    // Create item for every tavern
+    var tavern = new Tavern();
     // Get name and logo
-    taverns[tavernKey].name = tavernNode.attribs.alt;
-    taverns[tavernKey].logo = 'http://' + host + tavernNode.attribs.src;
+    tavern.name = tavernNode.attribs.alt;
+    tavern.logo = 'http://' + host + tavernNode.attribs.src;
 
     // Get people activity
     var usersNode = select(tavernRow, '.col-lg-6.col-md-6.col-sm-6');
@@ -63,7 +54,7 @@ function parseHTML(dom) {
         userInside.avatar = 'http://' + host + usersInside.children[i].attribs.src;
         userInside.name = usersInside.children[nameIndex].raw;
         userInside.date = '<b>NOW</b>';
-        taverns[tavernKey].usersInside.push(userInside);
+        tavern.usersInside.push(userInside);
       }
     });
 
@@ -92,12 +83,14 @@ function parseHTML(dom) {
             userToPlay.name = nameArr[0];
             userToPlay.time = nameArr[1];
             userToPlay.date = dateToPlay;
-            taverns[tavernKey].usersPlanToPlay.push(userToPlay);
+            tavern.usersPlanToPlay.push(userToPlay);
           }
         });
       });
     }
+    taverns.push(tavern);
   });
+
 
   return {
     taverns: taverns, 
