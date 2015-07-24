@@ -29,7 +29,7 @@ app.all('/', function(req, res) {
   res.send('Site for parsing mytogo.ru');
 });
 
-app.all('/grabData', require('./grabdata').get);
+app.get('/grabData', require('./grabdata').get);
 
 var server = app.listen(app.get('port'), function() {
 

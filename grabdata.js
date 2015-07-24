@@ -13,14 +13,14 @@ nconf.argv()
 
 var host = nconf.get('target').url;
 
-function Tavern() {
+function tavernModel() {
   this.name = '';
   this.logo = '';
   this.usersInside = [];
   this.usersPlanToPlay = [];
 }
 
-function User() {
+function userModel() {
   this.name = '';
   this.avatar = '';
   this.date = '';
@@ -48,7 +48,7 @@ function parseHTML(dom) {
       return;
     }
     // Create item for every tavern
-    var tavern = new Tavern();
+    var tavern = new tavernModel();
     // Get name and logo
     tavern.name = tavernNode.attribs.alt;
     tavern.logo = 'http://' + host + tavernNode.attribs.src;
@@ -60,7 +60,7 @@ function parseHTML(dom) {
 
     _.each(usersInside.children, function (item, i) {
       if (item.name === 'img') {
-        var userInside = new User();
+        var userInside = new userModel();
         var nameIndex = i + 1;
         userInside.avatar = 'http://' + host + usersInside.children[i].attribs.src;
         userInside.name = usersInside.children[nameIndex].raw;
@@ -69,15 +69,15 @@ function parseHTML(dom) {
       }
     });
 
-    var user, Time;
+    var user, timeBlock;
     _.each(usersToPlay.children, function (element) {
       if (element.attribs && element.attribs.class === 'bold') {
-        Time = element.children[0].data;
+        timeBlock = element.children[0].data;
       }
       if (element.attribs && element.attribs.src) {
-        user = new User();
+        user = new userModel();
         user.avatar = 'http://' + host + element.attribs.src;
-        user.date = Time;
+        user.date = timeBlock;
         tavern.usersPlanToPlay.push(user);
       }
       if (element.type === 'text' && element.data.indexOf(' в ') !== -1) {
@@ -101,7 +101,7 @@ function parseHTML(dom) {
 }
 
 exports.get = function (req, res) {
-  var city = req.body.city || 'rostov';
+  var city = req.query.city || 'rostov';
   var path = nconf.get(city).path;
   var body = '';
 
