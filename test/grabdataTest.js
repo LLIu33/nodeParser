@@ -5,6 +5,14 @@ var should = require('should');
 var http = require('http');
 var grabdata = require('../grabdata');
 
+var fs = require('fs');
+
+require.extensions['.html'] = function (module, filename) {
+  module.exports = fs.readFileSync(filename, 'utf8');
+};
+
+var correct = require('./fixtures/correct.html');
+
 var response = {
   on: function () {},
   end: function () {},
@@ -14,11 +22,11 @@ var response = {
 describe('grabData', function () {
 
   describe('check requests', function () {
-     beforeEach(function () {
+    beforeEach(function () {
       this.sandbox = sinon.sandbox.create();
       this.sandbox.stub(response, 'on')
         .withArgs('response').yields(response)
-        .withArgs('data').yields('12')
+        .withArgs('data').yields(correct)
         .withArgs('end').yields()
       this.sandbox.stub(http, 'request', function () {
         return response;
