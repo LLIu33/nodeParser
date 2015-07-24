@@ -105,7 +105,7 @@ exports.get = function (req, res) {
   var path = nconf.get(city).path;
   var body = '';
 
-  console.log(host + path);
+  // console.log(host + path);
 
   var request = http.request({
     port: nconf.get('target').port,
