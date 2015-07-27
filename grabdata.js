@@ -63,7 +63,7 @@ function parseHTML(dom) {
         var userInside = new User();
         var nameIndex = i + 1;
         userInside.avatar = 'http://' + host + usersInside.children[i].attribs.src;
-        userInside.name = usersInside.children[nameIndex].raw;
+        userInside.name = usersInside.children[nameIndex].raw.trim();
         userInside.date = '<b>NOW</b>';
         tavern.usersInside.push(userInside);
       }
