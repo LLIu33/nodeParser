@@ -66,6 +66,12 @@ describe('grabData', function () {
       done();
     });
 
+    it('should set encoding to utf-8', function () {
+      this.sandbox.spy(response, 'setEncoding');
+      grabdata.get(req, res);
+      response.setEncoding.args[0].should.be.Array().and.eql(['utf8']);
+    });
+
     it('should call http request with correct data', function () {
       grabdata.get(req, res);
       var args = http.request.args[0];
