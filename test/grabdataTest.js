@@ -14,7 +14,6 @@ require.extensions['.html'] = function (module, filename) {
 };
 
 var correct = require('./fixtures/correct.html');
-var emptyHTML = require('./fixtures/empty.html');
 var withoutActivity = require('./fixtures/silent.html');
 
 var response = {
@@ -24,13 +23,24 @@ var response = {
 };
 
 var fakeHandler = {
-    reset: function(){},
-    done: function(){},
-    writeTag: function(){},
-    writeText: function(){},
-    writeComment: function(){},
-    writeDirective: function(){}
+  reset: function(){},
+  done: function(){},
+  writeTag: function(){},
+  writeText: function(){},
+  writeComment: function(){},
+  writeDirective: function(){}
+};
+
+var req = {
+  body: {
+    city: 'tagan'
   }
+};
+var res = {
+  json: function(data) {
+    return data;
+  }
+};
 
 describe('grabData', function () {
 
@@ -44,33 +54,20 @@ describe('grabData', function () {
       this.sandbox.stub(http, 'request', function () {
         return response;
       });
-
-      this.req = {
-        body: {
-          city: 'tagan'
-        }
-      };
-
-      this.res = {
-        json: function(data) {
-          return data;
-        }
-      };
-
     });
 
     afterEach(function () {
-      this.sandbox.restore()
+      this.sandbox.restore();
     });
 
     it('should call http request', function (done) {
-      grabdata.get(this.req, this.res);
+      grabdata.get(req, res);
       http.request.called.should.be.true();
       done();
     });
 
     it('should call http request with correct data', function () {
-      grabdata.get(this.req, this.res);
+      grabdata.get(req, res);
       var args = http.request.args[0];
       args[0].should.be.Object().and.eql({
         'port': "80",
@@ -83,28 +80,18 @@ describe('grabData', function () {
   });
 
   describe('check parser', function () {
+    before(function () {
+      this.time = new Date().toLocaleString();
+    });
+
     beforeEach(function () {
       this.sandbox = sinon.sandbox.create();
       this.sandbox.stub(response, 'on')
         .withArgs('response').yields(response)
         .withArgs('data').yields(correct)
         .withArgs('end').yields()
-      this.sandbox.stub(http, 'request', function () {
-        return response;
-      });
-
-      this.req = {
-        body: {
-          city: 'tagan'
-        }
-      };
-
-      this.res = {
-        json: function(data) {
-          return data;
-        }
-      };
-      this.sandbox.spy(this.res, 'json');
+      this.sandbox.stub(http, 'request').returns(response);
+      this.sandbox.spy(res, 'json');
       this.sandbox.stub(sys, 'debug');
     });
 
@@ -113,11 +100,8 @@ describe('grabData', function () {
     });
 
     it('should return correct data if users active', function () {
-      grabdata.get(this.req, this.res);
-      var args = this.res.json.args[0];
-      var time = new Date().toLocaleString();
-
-      this.res.json.args[0].should.be.Array().and.eql([{
+      grabdata.get(req, res);
+      res.json.args[0].should.be.Array().and.eql([{
         taverns: [
           {
             name: 'Cow',
@@ -153,18 +137,14 @@ describe('grabData', function () {
             ]
           }
         ],
-        time: time
+        time: this.time
       }]);
-      this.res.json.called.should.be.true();
     });
 
     it('should return correct data if users don\'t active', function () {
       response.on.withArgs('data').yields(withoutActivity);
-      grabdata.get(this.req, this.res);
-      var args = this.res.json.args[0];
-      var time = new Date().toLocaleString();
-      this.res.json.called.should.be.true();
-      this.res.json.args[0].should.be.Array().and.eql([
+      grabdata.get(req, res);
+      res.json.args[0].should.be.Array().and.eql([
         {
           taverns: [
             {
@@ -174,44 +154,39 @@ describe('grabData', function () {
               usersPlanToPlay: []
             }
           ],
-          time: time
+          time: this.time
         }
       ]);
     });
 
     it('should return empty data if body empty', function () {
-      response.on.withArgs('data').yields(emptyHTML);
-      grabdata.get(this.req, this.res);
-      var args = this.res.json.args[0];
-      var time = new Date().toLocaleString();
-      this.res.json.called.should.be.true();
-      this.res.json.args[0].should.be.Array().and.eql([
+      response.on.withArgs('data').yields('');
+      grabdata.get(req, res);
+      res.json.args[0].should.be.Array().and.eql([
         {
           taverns: [],
-          time: time
+          time: this.time
         }
       ]);
     });
 
     it('should call htmlparser with correct body', function () {
       var parser = {
-        parseComplete: function (parameters) {}
+        parseComplete: function () {}
       }
       this.sandbox.stub(htmlparser, 'Parser').returns(parser);
       this.sandbox.spy(parser, 'parseComplete');
-      grabdata.get(this.req, this.res);
+      grabdata.get(req, res);
       parser.parseComplete.args[0].should.be.eql([correct]);
     });
 
     it('should don\'t send response and show error if htmlparser.DefaultHandler throw error', function () {
       this.sandbox.stub(htmlparser, 'DefaultHandler').returns(fakeHandler).yields('Achtung!', undefined);
-      grabdata.get(this.req, this.res);
-      this.res.json.called.should.be.false();
-      sys.debug.called.should.be.true();
+      grabdata.get(req, res);
+      res.json.called.should.be.false();
       sys.debug.args[0].should.be.eql(['Error: Achtung!']);
     });
 
   });
-  
-});
 
+});
