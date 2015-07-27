@@ -37,9 +37,10 @@ var req = {
   }
 };
 var res = {
-  json: function(data) {
-    return data;
-  }
+  json: function() {}
+};
+var parser = {
+  parseComplete: function () {}
 };
 
 describe('grabData', function () {
@@ -177,9 +178,6 @@ describe('grabData', function () {
     });
 
     it('should call htmlparser with correct body', function () {
-      var parser = {
-        parseComplete: function () {}
-      }
       this.sandbox.stub(htmlparser, 'Parser').returns(parser);
       this.sandbox.spy(parser, 'parseComplete');
       grabdata.get(req, res);
@@ -191,6 +189,13 @@ describe('grabData', function () {
       grabdata.get(req, res);
       res.json.called.should.be.false();
       sys.debug.args[0].should.be.eql(['Error: Achtung!']);
+    });
+
+    it('should create parser with correct handler', function () {
+      this.sandbox.stub(htmlparser, 'DefaultHandler').returns(fakeHandler).yields(undefined, '');
+      this.sandbox.spy(htmlparser, 'Parser');
+      grabdata.get(req, res);
+      htmlparser.Parser.args[0].should.be.eql([fakeHandler]);
     });
 
   });
